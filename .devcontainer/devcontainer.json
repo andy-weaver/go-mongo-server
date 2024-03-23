@@ -1,0 +1,35 @@
+{
+  "name": "go",
+  "privileged": true,
+  "dockerComposeFile": "compose.yml",
+  "service": "dev",
+  "workspaceFolder": "/app",
+  "features": {
+    "ghcr.io/devcontainers-contrib/features/vscode-server:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "tamasfe.even-better-toml",
+        "esbenp.prettier-vscode",
+        "vscode-icons-team.vscode-icons",
+        "usernamehw.errorlens",
+        "golang.go"
+      ],
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash",
+        "workbench.panel.defaultLocation": "bottom",
+        "workbench.colorTheme": "GitHub Dark High Contrast",
+        "editor.fontFamily": "Ubuntu Mono derivative Powerline",
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "editor.formatOnPaste": true,
+        "editor.defaultFormatter": "golang.go"
+        // "gopls.ui_semantic_tokens": true
+      }
+    },
+  },
+  "postAttachCommand": "code-server --accept-server-license-terms"
+}
