@@ -167,6 +167,11 @@ func setupRouter(client *mongo.Client) *mux.Router {
 }
 
 func main() {
+    mongoURI := os.Getenv("MONGO_URI")
+    if mongoURI == "" {
+        mongoURI = "mongodb://localhost:27017" // Default value
+    }
+    client, err = connectMongoDB(ctx, mongoURI)
     ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
     defer cancel()
 
