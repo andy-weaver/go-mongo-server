@@ -130,6 +130,27 @@ func updateItem(ctx context.Context, w http.ResponseWriter, r *http.Request, dbN
     json.NewEncoder(w).Encode(result)
 }
 
+func deleteItem(ctx context.Context, w http.ResponseWriter, r *http.Request, dbName string, collectionName string) {
+    w.Header().Set("Content-Type", "application/json")
+    params := mux.Vars(r)
+    id, err := primitive.ObjectIDFromHex(params["id"])
+    if err != nil {
+        http.Error(w, "Invalid ID", http.StatusBadRequest)
+        return
+    }
+
+    collection := client.Database(dbName).Collection(collectionName)
+    filter := bson.M{"_id": id}
+
+    result, err := collection.DeleteOne(ctx, filter)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    json.NewEncoder(w).Encode(result)
+}
+
 func setupRouter(client *mongo.Client) *mux.Router {
     router := mux.NewRouter()
 
