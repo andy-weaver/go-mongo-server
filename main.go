@@ -68,6 +68,40 @@ func getItem(ctx context.Context, w http.ResponseWriter, r *http.Request, dbName
     json.NewEncoder(w).Encode(item)
 }
 
+func getAllItems(ctx context.Context, w http.ResponseWriter, r *http.Request, dbName string, collectionName string) {
+    w.Header().Set("Content-Type", "application/json")
+    
+    var items []Item
+    collection := client.Database(dbName).Collection(collectionName)
+    
+    // Finding all documents in the collection
+    cursor, err := collection.Find(ctx, bson.M{})
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    defer cursor.Close(ctx)
+    
+    // Iterating through the cursor and decoding each document into the Item struct
+    for cursor.Next(ctx) {
+        var item Item
+        if err := cursor.Decode(&item); err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+            return
+        }
+        items = append(items, item)
+    }
+    
+    // Check if there was an error during iteration
+    if err := cursor.Err(); err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    
+    // Encode the slice of items as JSON and send it in the response
+    json.NewEncoder(w).Encode(items)
+}
+
 // Similar modifications for getItem, getAllItems, updateItem, deleteItem using ctx for operations
 
 func setupRouter(client *mongo.Client) *mux.Router {
