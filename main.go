@@ -102,7 +102,33 @@ func getAllItems(ctx context.Context, w http.ResponseWriter, r *http.Request, db
     json.NewEncoder(w).Encode(items)
 }
 
-// Similar modifications for getItem, getAllItems, updateItem, deleteItem using ctx for operations
+func updateItem(ctx context.Context, w http.ResponseWriter, r *http.Request, dbName string, collectionName string) {
+    w.Header().Set("Content-Type", "application/json")
+    params := mux.Vars(r)
+    id, err := primitive.ObjectIDFromHex(params["id"])
+    if err != nil {
+        http.Error(w, "Invalid ID", http.StatusBadRequest)
+        return
+    }
+
+    var item Item
+    if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    collection := client.Database(dbName).Collection(collectionName)
+    filter := bson.M{"_id": id}
+    update := bson.M{"$set": item}
+
+    result, err := collection.UpdateOne(ctx, filter, update)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    json.NewEncoder(w).Encode(result)
+}
 
 func setupRouter(client *mongo.Client) *mux.Router {
     router := mux.NewRouter()
